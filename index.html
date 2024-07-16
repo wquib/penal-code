@@ -182,7 +182,7 @@
                 row.innerHTML = `
                     <td hidden translate="no">${index}</td>
                     <td hidden translate="no">${item.code}</td>
-                    <td translate="no">${code}</td>
+                    <td translate="no" onclick="copyPureCharge(${index})" class="selectable-text">${code}</td>
                     <td translate="no" link>${charge} 
                         <a href="https://police.san-andreas.net/viewtopic.php?t=148639#:~:text=${code}" target="_blank" rel="noopener noreferrer">
                             <i class="bi bi-link-45deg"></i>
@@ -223,7 +223,7 @@
 
             selectedRow.innerHTML = `
                 <td translate="no" class="index" hidden>${index}</td>
-                <td translate="no" id="penalCode-${index}">${code}</td>
+                <td translate="no">${code}</td>
                 <td translate="no" id="charge-${index}" onclick="copyCharge(${index})" class="selectable-text">${charge}</td>
                 <td translate="no" class="jailtime">${item.jailtime}</td>
                 <td translate="no" class="fine">${fineFormat}</td>
@@ -254,6 +254,7 @@
             jailtime_total = 0;
             fine_total = 0;
             bail_total = 0;
+
             // Jailtime total
             const jailtime_elements = document.querySelectorAll('.jailtime');
             jailtime_elements.forEach(element => {
@@ -310,11 +311,9 @@
         // Charge click and copy with /su format
         function copyCharge(index) {
             var originalText = document.getElementById(`charge-${index}`);
-            var codeInput = document.getElementById(`penalCode-${index}`);
-            var charge = originalText.innerText;
-            var code = codeInput.innerText;
+            let data = chargeData[index];
             
-            const additionalText = `/su ${playerName} ${code} ${charge}`;
+            const additionalText = `/su ${playerName} ${data.charge}`;
             
             const tempTextarea = document.createElement('textarea');
             tempTextarea.value = additionalText;
@@ -327,6 +326,20 @@
                 console.error('Gagal menyalin teks', err);
             }
             document.body.removeChild(tempTextarea);
+        }
+
+        function copyPureCharge(index) {
+            let data = chargeData[index];
+            var tempInput = document.createElement('textarea');
+            tempInput.value = data.charge;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                alert('Failed to copy text');
+            }
+            document.body.removeChild(tempInput);
         }
 
         function copyArrestCMD() {
