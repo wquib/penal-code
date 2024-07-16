@@ -41,6 +41,7 @@
 
     <div class="container-xl py-5">
         <h1 class="text-light text-center py-5">SAPD 2024 Penal Code Calculation</h1>
+        <p class="text-light">©2024 Lucas Rutherford / Islah</p>
         <div class="form-floating mb-3 w-25" data-bs-theme="dark">
             <input type="text" class="form-control" id="playerName" placeholder="playerid/name" name="suspect-name">
             <label for="playerName" class="text-light">PlayerID or Name (CTRL + S)</label>
@@ -73,10 +74,31 @@
                 </tr>
             </tfoot>
         </table>
-    
-        <div class="form-floating mb-3 w-25 float-end" data-bs-theme="dark">
-            <input type="text" class="form-control" id="searchInput" placeholder="General Traffic Violation" name="charge-search">
-            <label for="search" class="text-light">Search a charge name or code (CTRL + K)</label>
+
+        <div class="d-flex justify-content-between align-items-center my-3">
+            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="btnradio" id="default" autocomplete="off" checked>
+                <label class="btn btn-dark" for="default">Default</label>
+              
+                <!-- <input type="radio" class="btn-check" name="btnradio" id="cat-0" autocomplete="off">
+                <label class="btn btn-dark" for="cat-0">Armed Robbery</label>
+              
+                <input type="radio" class="btn-check" name="btnradio" id="cat-1" autocomplete="off">
+                <label class="btn btn-dark" for="cat-1">Assaulted Armed Robbery</label>
+              
+                <input type="radio" class="btn-check" name="btnradio" id="cat-2" autocomplete="off">
+                <label class="btn btn-dark" for="cat-2">Trucker</label>
+              
+                <input type="radio" class="btn-check" name="btnradio" id="cat-3" autocomplete="off">
+                <label class="btn btn-dark" for="cat-3">Benson</label>
+              
+                <input type="radio" class="btn-check" name="btnradio" id="cat-4" autocomplete="off">
+                <label class="btn btn-dark" for="cat-4">Evader</label> -->
+            </div>
+            <div class="form-floating mb-3 w-25" data-bs-theme="dark">
+                <input type="text" class="form-control" id="searchInput" placeholder="General Traffic Violation" name="charge-search">
+                <label for="search" class="text-light">Search a charge name or code (CTRL + K)</label>
+            </div>
         </div>
 
         <table class="table table-striped table-hover table-dark" id="chargeTable">
@@ -96,7 +118,6 @@
 
     </div>
 
-
     <script>
         // Definition
         var playerName = 0;
@@ -106,6 +127,13 @@
         let max_jailtime = 480;
         let max_fine = 10000;
         let max_bail = 25000;
+
+        // Categories Index
+        const categories = [];
+
+        function printCat(index) {
+            console.log(categories[index]);
+        }
 
         let chargeData = [];
 
@@ -125,6 +153,7 @@
                 const row = document.createElement('tr');
 
                 row.innerHTML = `
+                    <td hidden translate="no">${index}</td>
                     <td hidden translate="no">${item.code}</td>
                     <td translate="no">${code}</td>
                     <td translate="no">${charge}</td>
@@ -221,10 +250,10 @@
             const arrestCommand = `/arrest ${playerName} ${jailtime_total} ${fine_total} ${bail_total}`;
             document.getElementById('arrest-command').textContent = arrestCommand;
         }
-        
+
         function updateName(value) {
             playerName = value;
-            const arrestCommand = `/arrest ${value} ${jailtime_total} ${fine_total} ${bail_total}`;
+            const arrestCommand = `/arrest ${playerName} ${jailtime_total} ${fine_total} ${bail_total}`;
             document.getElementById('arrest-command').textContent = arrestCommand;
         }
         
@@ -303,24 +332,59 @@
                 const filter = searchInput.value.toLowerCase();
 
                 for (let i = 1; i < rows.length; i++) {
-                    const hiddenCellText = rows[i].cells[0].textContent || rows[i].cells[0].innerText;
-                    const chargeCellText = rows[i].cells[1].textContent || rows[i].cells[1].innerText;
-                    const descriptionCellText = rows[i].cells[2].textContent || rows[i].cells[2].innerText;
+                    const hiddenCellText = rows[i].cells[1].textContent || rows[i].cells[1].innerText;
+                    const chargeCellText = rows[i].cells[2].textContent || rows[i].cells[2].innerText;
+                    const descriptionCellText = rows[i].cells[3].textContent || rows[i].cells[3].innerText;
 
                     if (
                         hiddenCellText.toLowerCase().indexOf(filter) > -1 ||
                         chargeCellText.toLowerCase().indexOf(filter) > -1 ||
                         descriptionCellText.toLowerCase().indexOf(filter) > -1
                     ) {
-                        // rows[i].removeAttribute("hidden");
                         rows[i].style.display = "";
                     } else {
-                        // rows[i].setAttribute("hidden", true);
                         rows[i].style.display = "none";
                     }
                 }
             });
         });
+
+        categories[0] = [61, 30, 41]; 
+        categories[1] = [61, 107, 59, 68, 89];
+        // Armed Robbery
+         // Assaulted Armed Robbery
+        categories[2] = []; // Trucker
+        categories[3] = []; // Benson/Lorry
+        categories[4] = []; // Evader
+        function selectCategories(index) {
+            console.log(index);
+            // const itemTable = document.getElementById("chargeTable");
+            // const rows = itemTable.getElementsByTagName("tr");
+            // const searchValues = categories[index].map(String); // Use the provided index to select the category array
+            
+            // for (let i = 1; i < rows.length; i++) { // Skip header row
+            //     const cells = rows[i].cells[0].textContent || rows[i].cells[0].innerText;
+            //     // const cells = rows[i].getElementsByTagName('td');
+            //     let matchFound = false;
+
+            //     for (let j = 0; j < cells.length; j++) {
+            //         const cellText = cells[j].textContent || cells[j].innerText;
+            //         if (searchValues.includes(cellText)) {
+            //             matchFound = true;
+            //             break;
+            //         }
+            //     }
+
+            //     if (matchFound) {
+            //         rows[i].style.display = "";
+            //         // rows[i].classList.add('highlight');
+            //     } else {
+            //         rows[i].style.display = "none";
+            //         // rows[i].classList.remove('highlight');
+            //     }
+            // }
+        }
+
 
         document.addEventListener('DOMContentLoaded', (event) => {
             const searchElement = document.getElementById('searchInput');
@@ -328,12 +392,12 @@
 
             document.addEventListener('keydown', (event) => {
                 if (event.ctrlKey && event.key === 'k') {
-                    event.preventDefault(); // Prevent the default browser action
-                    searchElement.focus(); // Focus the input element
+                    event.preventDefault();
+                    searchElement.focus();
                 }
                 if (event.ctrlKey && event.key === 's') {
-                    event.preventDefault(); // Prevent the default browser action
-                    playerNameElement.focus(); // Focus the input element
+                    event.preventDefault();
+                    playerNameElement.focus();
                 }
             });
         });
