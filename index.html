@@ -286,7 +286,11 @@
         }
 
         function updateName(value) {
-            playerName = value;
+            if (typeof value === 'string') {
+                playerName = value.replace(/ /g, "_");
+            } else {
+                playerName = value;
+            }
             const arrestCommand = `/arrest ${playerName} ${jailtime_total} ${fine_total} ${bail_total}`;
             document.getElementById('arrest-command').textContent = arrestCommand;
         }
@@ -295,8 +299,8 @@
             var playerInput = document.getElementById('playerName');
 
             playerInput.addEventListener('input', function () {
-                var inputValue = playerInput.value;
-                if(inputValue.trim() === "") {
+                var inputValue = playerInput.value.trim();
+                if(inputValue === "") {
                     inputValue = 0;
                 }
                 updateName(inputValue);
@@ -318,27 +322,12 @@
             tempTextarea.select();
             try {
                 document.execCommand('copy');
-                // Change the text style to bold after copying
                 originalText.classList.add('fw-bold');
             } catch (err) {
                 console.error('Gagal menyalin teks', err);
             }
             document.body.removeChild(tempTextarea);
         }
-
-        // click arrest command and copy
-        // document.getElementById('arrest-command').addEventListener('click', function() {
-        //     var range = document.createRange();
-        //     range.selectNode(this);
-        //     window.getSelection().removeAllRanges();
-        //     window.getSelection().addRange(range);
-        //     try {
-        //         document.execCommand('copy');
-        //     } catch (err) {
-        //         alert('Failed to copy text');
-        //     }
-        //     window.getSelection().removeAllRanges();
-        // });
 
         function copyArrestCMD() {
             var arrestText = document.getElementById('arrest-command').innerText.trim();
