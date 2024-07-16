@@ -33,20 +33,17 @@
             cursor: copy;
             user-select: all;
         }
-        .bold-text {
-            font-weight: bold;
-        }
         #arrest-command {
             cursor: copy;
             user-select: all;
         }
     </style>
 
-    <div class="container-xl">
-        <!-- <h1 class="text-warning">COPY CHARGE CODE BUGG</h1> -->
+    <div class="container-xl py-5">
+        <h1 class="text-light text-center py-5">SAPD 2024 Penal Code Calculation</h1>
         <div class="form-floating mb-3 w-25" data-bs-theme="dark">
             <input type="text" class="form-control" id="playerName" placeholder="playerid/name" name="suspect-name">
-            <label for="playerName" class="text-light">PlayerID or Name</label>
+            <label for="playerName" class="text-light">PlayerID or Name (CTRL + S)</label>
         </div>
     
         <table class="added-charge table table-striped table-hover table-dark">
@@ -77,9 +74,9 @@
             </tfoot>
         </table>
     
-        <div class="form-floating mb-3 w-25" data-bs-theme="dark">
+        <div class="form-floating mb-3 w-25 float-end" data-bs-theme="dark">
             <input type="text" class="form-control" id="searchInput" placeholder="General Traffic Violation" name="charge-search">
-            <label for="search" class="text-light">Search a charge name or code</label>
+            <label for="search" class="text-light">Search a charge name or code (CTRL + K)</label>
         </div>
 
         <table class="table table-striped table-hover table-dark" id="chargeTable">
@@ -167,7 +164,7 @@
             selectedRow.innerHTML = `
                 <td translate="no" class="index" hidden>${index}</td>
                 <td translate="no" id="penalCode-${index}">${code}</td>
-                <td translate="no" onclick="selectAndCopy(this, '${index}')">${charge}</td>
+                <td translate="no" onclick="selectAndCopy(this, '${index}')" class="selectable-text">${charge}</td>
                 <td translate="no" class="jailtime">${item.jailtime}</td>
                 <td translate="no" class="fine">${fineFormat}</td>
                 <td translate="no" class="bail">${bailFormat}</td>
@@ -258,7 +255,7 @@
             try {
                 document.execCommand('copy');
                 // Change the text style to bold after copying
-                element.classList.add('bold-text');
+                element.classList.add('fw-bold');
             } catch (err) {
                 console.error('Gagal menyalin teks', err);
             }
@@ -321,6 +318,22 @@
                         // rows[i].setAttribute("hidden", true);
                         rows[i].style.display = "none";
                     }
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const searchElement = document.getElementById('searchInput');
+            const playerNameElement = document.getElementById('playerName');
+
+            document.addEventListener('keydown', (event) => {
+                if (event.ctrlKey && event.key === 'k') {
+                    event.preventDefault(); // Prevent the default browser action
+                    searchElement.focus(); // Focus the input element
+                }
+                if (event.ctrlKey && event.key === 's') {
+                    event.preventDefault(); // Prevent the default browser action
+                    playerNameElement.focus(); // Focus the input element
                 }
             });
         });
