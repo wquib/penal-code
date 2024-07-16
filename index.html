@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        const RELOADCONFIRM = false;
+        if(RELOADCONFIRM == true) {
+            // Fungsi untuk menampilkan pesan konfirmasi sebelum halaman di-reload
+            window.addEventListener('beforeunload', function (e) {
+                var confirmationMessage = 'Apakah Anda yakin untuk mereload halaman?';
+
+                // Standar untuk sebagian besar browser
+                (e || window.event).returnValue = confirmationMessage;
+
+                // Standar untuk Chrome
+                return confirmationMessage;
+            });
+        }
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <title>SAPD 2024 Penal CODE</title>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: rgb(40, 40, 40);
+        }
+        .selectable-text {
+            cursor: copy;
+            user-select: all;
+        }
+        .bold-text {
+            font-weight: bold;
+        }
+        #arrest-command {
+            cursor: copy;
+            user-select: all;
+        }
+    </style>
+
+    <div class="container-xl">
+        <!-- <h1 class="text-warning">COPY CHARGE CODE BUGG</h1> -->
+        <div class="form-floating mb-3 w-25" data-bs-theme="dark">
+            <input type="text" class="form-control" id="playerName" placeholder="playerid/name" name="suspect-name">
+            <label for="playerName" class="text-light">PlayerID or Name</label>
+        </div>
+    
+        <table class="added-charge table table-striped table-hover table-dark">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Charge</th>
+                    <th>Jailtime</th>
+                    <th>Fine</th>
+                    <th>Bail</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="selectedChargeTableBody">
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">Total:</td>
+                    <td translate="no" id="jailtime-total">0</td>
+                    <td translate="no" id="fine-total">$0.00</td>
+                    <td translate="no" id="bail-total">$0.00</td>
+                    <td><button onclick="resetCharge()" class="btn btn-warning">RESET</button></td>
+                </tr>
+                <tr>
+                    <td>Command: </td>
+                    <td colspan="5" id="arrest-command" translate="no">/arrest 0 0 0 0</td>
+                </tr>
+            </tfoot>
+        </table>
+    
+        <div class="form-floating mb-3 w-25" data-bs-theme="dark">
+            <input type="text" class="form-control" id="searchInput" placeholder="General Traffic Violation" name="charge-search">
+            <label for="search" class="text-light">Search a charge name or code</label>
+        </div>
+
+        <table class="table table-striped table-hover table-dark" id="chargeTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Charge</th>
+                    <th>Jailtime</th>
+                    <th>Fine</th>
+                    <th>Bail</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="chargeTableBody">
+            </tbody>
+        </table>
+
+    </div>
+
+
+    <script>
+        // Definition
+        var playerName = 0;
+        let jailtime_total = 0;
+        let fine_total = 0;
+        let bail_total = 0;
+        let max_jailtime = 480;
+        let max_fine = 10000;
+        let max_bail = 25000;
+
+        let chargeData = [];
+
+        async function loadTableData() {
+            const response = await fetch('data.json');
+            chargeData = await response.json();
+
+            const tableBody = document.getElementById('chargeTableBody');
+            tableBody.innerHTML = '';
+
+            chargeData.forEach((item, index) => {
+                var code = splitChargeCode(item.charge).Code;
+                var charge = splitChargeCode(item.charge).Charge;
+                var fineFormat = parseFloat(item.fine).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+                var bailFormat = parseFloat(item.bail).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td hidden translate="no">${item.code}</td>
+                    <td translate="no">${code}</td>
+                    <td translate="no">${charge}</td>
+                    <td translate="no">${item.jailtime}</td>
+                    <td translate="no">${fineFormat}</td>
+                    <td translate="no">${bailFormat}</td>
+                    <td><button onclick="AddCharge(${index})" class="btn btn-primary">ADD</button></td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Call that function while the page loaded
+        document.addEventListener('DOMContentLoaded', loadTableData);
+
+        // Add Charge
+        function AddCharge(index) {
+            const item = chargeData[index];
+            const selectedRows = document.querySelectorAll('.index');
+            for (const row of selectedRows) {
+                const selectedIndex = parseFloat(row.textContent);
+                if (selectedIndex === index) {
+                    console.log('Data sudah ada di tabel seleksi.');
+                    return;
+                }
+            }
+
+            const selectedTableBody = document.getElementById('selectedChargeTableBody');
+            var selectedRow = document.createElement('tr');
+            
+            var code = splitChargeCode(item.charge).Code;
+            var charge = splitChargeCode(item.charge).Charge;
+            var fineFormat = parseFloat(item.fine).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+            var bailFormat = parseFloat(item.bail).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
+            selectedRow.innerHTML = `
+                <td translate="no" class="index" hidden>${index}</td>
+                <td translate="no" id="penalCode-${index}">${code}</td>
+                <td translate="no" onclick="selectAndCopy(this, '${index}')">${charge}</td>
+                <td translate="no" class="jailtime">${item.jailtime}</td>
+                <td translate="no" class="fine">${fineFormat}</td>
+                <td translate="no" class="bail">${bailFormat}</td>
+                <td><button onclick="removeCharge(this)" class="btn btn-danger">REMOVE</button></td>
+            `;
+
+            selectedTableBody.appendChild(selectedRow);
+            refreshData();
+        }
+
+        function removeCharge(button) {
+            const row = button.closest('tr');
+            row.remove();
+            refreshData();
+        }
+
+        function resetCharge() {
+            const selectedTableBody = document.getElementById('selectedChargeTableBody');
+            selectedTableBody.innerHTML = '';
+            refreshData();
+        }
+
+        function refreshData() {
+            jailtime_total = 0;
+            fine_total = 0;
+            bail_total = 0;
+            // Jailtime total
+            const jailtime_elements = document.querySelectorAll('.jailtime');
+            jailtime_elements.forEach(element => {
+                jailtime_total += parseInt(element.textContent, 10);
+            });
+            if(jailtime_total > max_jailtime) jailtime_total = max_jailtime;
+            document.getElementById('jailtime-total').textContent = jailtime_total;
+    
+            // Fine total
+            const fine_elements = document.querySelectorAll('.fine');
+            fine_elements.forEach(element => {
+                const value = parseFloat(element.textContent.replace('$', '').replace(',', ''));
+                fine_total += value;
+            });
+            if(fine_total > max_fine) fine_total = max_fine;
+            document.getElementById('fine-total').textContent = `${fine_total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`;
+            
+            // Bail total
+            const bail_elements = document.querySelectorAll('.bail');
+            bail_elements.forEach(element => {
+                const value = parseFloat(element.textContent.replace('$', '').replace(',', ''));
+                bail_total += value;
+            });
+            if(bail_total > max_bail) bail_total = max_bail;
+            document.getElementById('bail-total').textContent = `${bail_total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`;
+
+            // Formatting arrest command
+            const arrestCommand = `/arrest ${playerName} ${jailtime_total} ${fine_total} ${bail_total}`;
+            document.getElementById('arrest-command').textContent = arrestCommand;
+        }
+        
+        function updateName(value) {
+            playerName = value;
+            const arrestCommand = `/arrest ${value} ${jailtime_total} ${fine_total} ${bail_total}`;
+            document.getElementById('arrest-command').textContent = arrestCommand;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            var playerInput = document.getElementById('playerName');
+
+            playerInput.addEventListener('input', function () {
+                var inputValue = playerInput.value;
+                if(inputValue.trim() === "") {
+                    inputValue = 0;
+                }
+                updateName(inputValue);
+            });
+        });
+
+        // Charge click and copy with /su format
+        function selectAndCopy(element, index) {
+            const originalText = element.innerText;
+            var codeInput = document.getElementById(`penalCode-${index}`);
+            var code = codeInput.innerText;
+            
+            const additionalText = `/su ${playerName} ${code} ${originalText}`;
+            
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = additionalText;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            try {
+                document.execCommand('copy');
+                // Change the text style to bold after copying
+                element.classList.add('bold-text');
+            } catch (err) {
+                console.error('Gagal menyalin teks', err);
+            }
+            document.body.removeChild(tempTextarea);
+        }
+
+        // click arrest command and copy
+        document.getElementById('arrest-command').addEventListener('click', function() {
+            var range = document.createRange();
+            range.selectNode(this);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                alert('Failed to copy text');
+            }
+            window.getSelection().removeAllRanges();
+        });
+
+        function splitChargeCode(input) {
+            const regex = /^\((\d+)\) ([A-Z]\.)/;
+            const match = input.match(regex);
+            
+            if (match) {
+                const code = match[0];
+                const charge = input.replace(code, '').trim();
+                return {
+                    Code: code,
+                    Charge: charge
+                };
+            } else {
+                return {
+                    error: 'Input format is incorrect'
+                };
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("searchInput");
+            const itemTable = document.getElementById("chargeTable");
+            const rows = itemTable.getElementsByTagName("tr");
+
+            searchInput.addEventListener("keyup", function () {
+                const filter = searchInput.value.toLowerCase();
+
+                for (let i = 1; i < rows.length; i++) {
+                    const hiddenCellText = rows[i].cells[0].textContent || rows[i].cells[0].innerText;
+                    const chargeCellText = rows[i].cells[1].textContent || rows[i].cells[1].innerText;
+                    const descriptionCellText = rows[i].cells[2].textContent || rows[i].cells[2].innerText;
+
+                    if (
+                        hiddenCellText.toLowerCase().indexOf(filter) > -1 ||
+                        chargeCellText.toLowerCase().indexOf(filter) > -1 ||
+                        descriptionCellText.toLowerCase().indexOf(filter) > -1
+                    ) {
+                        // rows[i].removeAttribute("hidden");
+                        rows[i].style.display = "";
+                    } else {
+                        // rows[i].setAttribute("hidden", true);
+                        rows[i].style.display = "none";
+                    }
+                }
+            });
+        });
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</body>
+</html>
