@@ -39,6 +39,16 @@
             cursor: copy;
             user-select: all;
         }
+        .added-charge th:last-child {
+            width: 200px;
+            min-width: 200px;
+            max-width: 200px;
+        }
+        .added-charge th:first-child {
+            width: 10px;
+            min-width: 10px;
+            max-width: 10px;
+        }
     </style>
 
     <div class="container-xl py-5">
@@ -73,7 +83,10 @@
                 </tr>
                 <tr>
                     <td>Command: </td>
-                    <td colspan="5" id="arrest-command" translate="no">/arrest 0 0 0 0</td>
+                    <td colspan="4" id="arrest-command" translate="no" onclick="copyArrestCMD()">/arrest 0 0 0 0</td>
+                    <td>
+                        <button onclick="copyArrestCMD()" class="btn btn-secondary">COPY</button>
+                    </td>
                 </tr>
             </tfoot>
         </table>
@@ -152,7 +165,6 @@
                 var charge = splitChargeCode(item.charge).Charge;
                 var fineFormat = parseFloat(item.fine).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
                 var bailFormat = parseFloat(item.bail).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-                let encodedCharge = encodeURIComponent(item.code);
 
                 const row = document.createElement('tr');
 
@@ -201,11 +213,14 @@
             selectedRow.innerHTML = `
                 <td translate="no" class="index" hidden>${index}</td>
                 <td translate="no" id="penalCode-${index}">${code}</td>
-                <td translate="no" onclick="selectAndCopy(this, '${index}')" class="selectable-text">${charge}</td>
+                <td translate="no" id="charge-${index}" onclick="copyCharge(${index})" class="selectable-text">${charge}</td>
                 <td translate="no" class="jailtime">${item.jailtime}</td>
                 <td translate="no" class="fine">${fineFormat}</td>
                 <td translate="no" class="bail">${bailFormat}</td>
-                <td><button onclick="removeCharge(this)" class="btn btn-danger">REMOVE</button></td>
+                <td>
+                    <button onclick="copyCharge(${index})" class="btn btn-secondary me-1">COPY</button>
+                    <button onclick="removeCharge(this)" class="btn btn-danger ms-1">REMOVE</button>
+                </td>
             `;
 
             selectedTableBody.appendChild(selectedRow);
@@ -278,12 +293,13 @@
         });
 
         // Charge click and copy with /su format
-        function selectAndCopy(element, index) {
-            const originalText = element.innerText;
+        function copyCharge(index) {
+            var originalText = document.getElementById(`charge-${index}`);
             var codeInput = document.getElementById(`penalCode-${index}`);
+            var charge = originalText.innerText;
             var code = codeInput.innerText;
             
-            const additionalText = `/su ${playerName} ${code} ${originalText}`;
+            const additionalText = `/su ${playerName} ${code} ${charge}`;
             
             const tempTextarea = document.createElement('textarea');
             tempTextarea.value = additionalText;
@@ -292,7 +308,7 @@
             try {
                 document.execCommand('copy');
                 // Change the text style to bold after copying
-                element.classList.add('fw-bold');
+                originalText.classList.add('fw-bold');
             } catch (err) {
                 console.error('Gagal menyalin teks', err);
             }
@@ -300,18 +316,32 @@
         }
 
         // click arrest command and copy
-        document.getElementById('arrest-command').addEventListener('click', function() {
-            var range = document.createRange();
-            range.selectNode(this);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
+        // document.getElementById('arrest-command').addEventListener('click', function() {
+        //     var range = document.createRange();
+        //     range.selectNode(this);
+        //     window.getSelection().removeAllRanges();
+        //     window.getSelection().addRange(range);
+        //     try {
+        //         document.execCommand('copy');
+        //     } catch (err) {
+        //         alert('Failed to copy text');
+        //     }
+        //     window.getSelection().removeAllRanges();
+        // });
+
+        function copyArrestCMD() {
+            var arrestText = document.getElementById('arrest-command').innerText.trim();
+            var tempInput = document.createElement('textarea');
+            tempInput.value = arrestText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
             try {
                 document.execCommand('copy');
             } catch (err) {
                 alert('Failed to copy text');
             }
-            window.getSelection().removeAllRanges();
-        });
+            document.body.removeChild(tempInput);
+        }
 
         function splitChargeCode(input) {
             const regex = /^\((\d+)\) ([A-Z]\.)/;
