@@ -7,6 +7,7 @@ let max_jailtime = 480;
 let max_fine = 10000;
 let max_bail = 25000;
 
+let addedChargeData = [];
 let chargeData = [];
 
 async function loadTableData() {
@@ -28,7 +29,7 @@ async function loadTableData() {
             <td hidden translate="no">${index}</td>
             <td hidden translate="no">${item.code}</td>
             <td translate="no" onclick="copyPureCharge(${index})" class="selectable-text">${code}</td>
-            <td translate="no" link>${charge} 
+            <td translate="no">${charge} 
                 <a href="https://police.san-andreas.net/viewtopic.php?t=148639#:~:text=${code}" target="_blank" rel="noopener noreferrer">
                     <i class="bi bi-link-45deg"></i>
                 </a>
@@ -41,13 +42,32 @@ async function loadTableData() {
         
         tableBody.appendChild(row);
     });
+    loadChargeTable();
 }
 
 // Call that function while the page loaded
 document.addEventListener('DOMContentLoaded', loadTableData);
 
+// load the added charge table from session
+async function loadChargeTable() {
+    if(sessionStorage.getItem('addedCharge') === null) return;
+
+    let retrievedChargeString = sessionStorage.getItem('addedCharge');
+    let retrievedCharge = JSON.parse(retrievedChargeString);
+
+    // Merging addedChargeData from local var with session data
+    addedChargeData = retrievedCharge;
+    for (let i = 0; i < addedChargeData.length; i++) {
+        const element = addedChargeData[i];
+        AddCharge(element, false);
+    }
+
+    // console.log('DATA in session: '+retrievedCharge);
+    // console.log(addedChargeData);
+}
+
 // Add Charge
-function AddCharge(index) {
+function AddCharge(index, button = true) {
     const item = chargeData[index];
     const selectedRows = document.querySelectorAll('.index');
     for (const row of selectedRows) {
@@ -69,27 +89,48 @@ function AddCharge(index) {
     selectedRow.innerHTML = `
         <td translate="no" class="index" hidden>${index}</td>
         <td translate="no">${code}</td>
-        <td translate="no" id="charge-${index}" onclick="copyCharge(${index})" class="selectable-text">${charge}</td>
+        <td translate="no" id="charge-${index}" onclick="copyCharge(${index})" class="selectable-text charge-td">${charge}</td>
         <td translate="no" class="jailtime">${item.jailtime}</td>
         <td translate="no" class="fine">${fineFormat}</td>
         <td translate="no" class="bail">${bailFormat}</td>
         <td>
-            <button onclick="copyCharge(${index})" class="btn btn-secondary me-3">COPY</button>
-            <button onclick="removeCharge(this)" class="btn btn-danger">REMOVE</button>
+            <button onclick="copyCharge(${index})" class="btn btn-secondary me-2">COPY</button>
+            <button onclick="removeCharge(this, '${index}')" class="btn btn-danger">REMOVE</button>
         </td>
     `;
+
+    // Add the data to session while issued by add button
+    if (button === true) {
+        addedChargeData.push(index);    
+        let addedChargeString = JSON.stringify(addedChargeData);
+        sessionStorage.setItem('addedCharge', addedChargeString);
+    }
 
     selectedTableBody.appendChild(selectedRow);
     refreshData();
 }
 
-function removeCharge(button) {
+function removeCharge(button, index) {
+    let data = parseInt(index, 10)
+    addedChargeData = addedChargeData.filter(value => value !== data);
+
+    if(addedChargeData.length > 0) {
+        let addedChargeString = JSON.stringify(addedChargeData);
+        sessionStorage.setItem('addedCharge', addedChargeString);
+    } else {
+        sessionStorage.removeItem('addedCharge');
+    }
+
     const row = button.closest('tr');
     row.remove();
     refreshData();
 }
 
 function resetCharge() {
+    // reset the added charge session data
+    addedChargeData = [];
+    sessionStorage.removeItem('addedCharge');
+
     const selectedTableBody = document.getElementById('selectedChargeTableBody');
     selectedTableBody.innerHTML = '';
     refreshData();
@@ -168,7 +209,7 @@ function copyCharge(index) {
         document.execCommand('copy');
         originalText.classList.add('fw-bold');
     } catch (err) {
-        console.error('Gagal menyalin teks', err);
+        console.error('Failed to copy text', err);
     }
     document.body.removeChild(tempTextarea);
 }
@@ -182,7 +223,7 @@ function copyPureCharge(index) {
     try {
         document.execCommand('copy');
     } catch (err) {
-        alert('Failed to copy text');
+        alert('Failed to copy text', err);
     }
     document.body.removeChild(tempInput);
 }
@@ -196,7 +237,7 @@ function copyArrestCMD() {
     try {
         document.execCommand('copy');
     } catch (err) {
-        alert('Failed to copy text');
+        alert('Failed to copy text', err);
     }
     document.body.removeChild(tempInput);
 }
