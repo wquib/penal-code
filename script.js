@@ -37,7 +37,7 @@ async function loadTableData() {
             <td translate="no">${item.jailtime}</td>
             <td translate="no">${fineFormat}</td>
             <td translate="no">${bailFormat}</td>
-            <td><button onclick="AddCharge(${index})" class="btn btn-primary">ADD</button></td>
+            <td><button onclick="AddCharge(${index})" class="btn btn-primary add-btn" id="add-btn-${index}">ADD</button></td>
         `;
         
         tableBody.appendChild(row);
@@ -52,22 +52,23 @@ document.addEventListener('DOMContentLoaded', loadTableData);
 async function loadChargeTable() {
     if(sessionStorage.getItem('addedCharge') === null) return;
 
+    // Merging addedcCharge session variable to local var
     let retrievedChargeString = sessionStorage.getItem('addedCharge');
-    let retrievedCharge = JSON.parse(retrievedChargeString);
-
-    // Merging addedChargeData from local var with session data
+    let retrievedCharge = JSON.parse(retrievedChargeString);    
     addedChargeData = retrievedCharge;
+    
     for (let i = 0; i < addedChargeData.length; i++) {
         const element = addedChargeData[i];
         AddCharge(element, false);
     }
-
-    // console.log('DATA in session: '+retrievedCharge);
-    // console.log(addedChargeData);
 }
 
 // Add Charge
 function AddCharge(index, button = true) {
+    var buttonId = 'add-btn-' + index;
+    var add_button = document.getElementById(buttonId);
+    add_button.disabled = true;
+
     const item = chargeData[index];
     const selectedRows = document.querySelectorAll('.index');
     for (const row of selectedRows) {
@@ -121,12 +122,23 @@ function removeCharge(button, index) {
         sessionStorage.removeItem('addedCharge');
     }
 
+    var buttonId = 'add-btn-' + index;
+    var add_button = document.getElementById(buttonId);
+    add_button.disabled = false;
+
     const row = button.closest('tr');
     row.remove();
     refreshData();
 }
 
 function resetCharge() {
+    const add_button = document.querySelectorAll('.add-btn');
+    add_button.forEach(function(button) {
+        if (button.disabled === true) {
+            button.disabled = false;
+        }
+    });
+
     // reset the added charge session data
     addedChargeData = [];
     sessionStorage.removeItem('addedCharge');
