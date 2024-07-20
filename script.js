@@ -34,9 +34,9 @@ async function loadTableData() {
                     <i class="bi bi-link-45deg"></i>
                 </a>
             </td>
-            <td translate="no">${item.jailtime}</td>
-            <td translate="no">${fineFormat}</td>
-            <td translate="no">${bailFormat}</td>
+            <td translate="no">${item.jailtime > 0 ? item.jailtime : '-'}</td>
+            <td translate="no">${item.fine > 0 ? fineFormat : '-'}</td>
+            <td translate="no">${item.bail > 0 ? bailFormat : '-'}</td>
             <td><button onclick="AddCharge(${index})" class="btn btn-primary add-btn" id="add-btn-${index}">ADD</button></td>
         `;
         
@@ -89,11 +89,11 @@ function AddCharge(index, button = true) {
 
     selectedRow.innerHTML = `
         <td translate="no" class="index" hidden>${index}</td>
-        <td translate="no">${code}</td>
+        <td translate="no" onclick="copyPureCharge(${index})" class="selectable-text">${code}</td>
         <td translate="no" id="charge-${index}" onclick="copyCharge(${index})" class="selectable-text charge-td">${charge}</td>
-        <td translate="no" class="jailtime">${item.jailtime}</td>
-        <td translate="no" class="fine">${fineFormat}</td>
-        <td translate="no" class="bail">${bailFormat}</td>
+        <td translate="no" class="jailtime">${jailtimeInfo(index)}</td>
+        <td translate="no" class="fine">${item.fine > 0 ? fineFormat : '-'}</td>
+        <td translate="no" class="bail">${item.bail > 0 ? bailFormat : '-'}</td>
         <td>
             <button onclick="copyCharge(${index})" class="btn btn-secondary me-2">COPY</button>
             <button onclick="removeCharge(this, '${index}')" class="btn btn-danger">REMOVE</button>
@@ -108,7 +108,7 @@ function AddCharge(index, button = true) {
     }
 
     selectedTableBody.appendChild(selectedRow);
-    refreshData();
+    refreshCalculation();
 }
 
 function removeCharge(button, index) {
@@ -128,7 +128,7 @@ function removeCharge(button, index) {
 
     const row = button.closest('tr');
     row.remove();
-    refreshData();
+    refreshCalculation();
 }
 
 function resetCharge() {
@@ -145,37 +145,29 @@ function resetCharge() {
 
     const selectedTableBody = document.getElementById('selectedChargeTableBody');
     selectedTableBody.innerHTML = '';
-    refreshData();
+    refreshCalculation();
 }
 
-function refreshData() {
+function refreshCalculation() {
     jailtime_total = 0;
     fine_total = 0;
     bail_total = 0;
 
+    for (let i = 0; i < addedChargeData.length; i++) {
+        const data = chargeData[addedChargeData[i]];
+        if(data.jailtime > 0) {
+            fine_total += data.fine;
+            bail_total += data.bail;
+            jailtime_total += data.jailtime;
+        }
+    }
     // Jailtime total
-    const jailtime_elements = document.querySelectorAll('.jailtime');
-    jailtime_elements.forEach(element => {
-        jailtime_total += parseInt(element.textContent, 10);
-    });
     if(jailtime_total > max_jailtime) jailtime_total = max_jailtime;
     document.getElementById('jailtime-total').textContent = jailtime_total;
-
     // Fine total
-    const fine_elements = document.querySelectorAll('.fine');
-    fine_elements.forEach(element => {
-        const value = parseFloat(element.textContent.replace('$', '').replace(',', ''));
-        fine_total += value;
-    });
     if(fine_total > max_fine) fine_total = max_fine;
     document.getElementById('fine-total').textContent = `${fine_total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`;
-    
     // Bail total
-    const bail_elements = document.querySelectorAll('.bail');
-    bail_elements.forEach(element => {
-        const value = parseFloat(element.textContent.replace('$', '').replace(',', ''));
-        bail_total += value;
-    });
     if(bail_total > max_bail) bail_total = max_bail;
     document.getElementById('bail-total').textContent = `${bail_total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`;
 
@@ -210,11 +202,17 @@ document.addEventListener('DOMContentLoaded', function () {
 function copyCharge(index) {
     var originalText = document.getElementById(`charge-${index}`);
     let data = chargeData[index];
+    let formattedCommand = '';
     
-    const additionalText = `/su ${playerName} ${data.charge}`;
+    if(data.jailtime === 0 && data.fine > 0) {
+        formattedCommand = `/ticket ${playerName} ${data.fine} ${data.charge}`;
+    }
+    else {
+        formattedCommand = `/su ${playerName} ${data.charge}`;
+    }
     
     const tempTextarea = document.createElement('textarea');
-    tempTextarea.value = additionalText;
+    tempTextarea.value = formattedCommand;
     document.body.appendChild(tempTextarea);
     tempTextarea.select();
     try {
@@ -267,9 +265,20 @@ function splitChargeCode(input) {
         };
     } else {
         return {
+            Code: '',
+            Charge: input,
             error: 'Input format is incorrect'
         };
     }
+}
+
+function jailtimeInfo(index) {
+    let data = chargeData[index];
+    if(data.jailtime === 0 && data.fine > 0)
+        return '<span class="badge text-bg-secondary">TICKET</span>';
+    else if(data.jailtime === 0 && data.fine === 0)
+        return '<span class="badge text-bg-secondary">TAG</span>';
+    else return data.jailtime;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
