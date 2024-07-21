@@ -21,14 +21,12 @@
             cursor: copy;
             user-select: all;
         }
+        .selectable-text:hover {
+            text-decoration: underline;
+        }
         #arrest-command {
             cursor: copy;
             user-select: all;
-        }
-        .added-charge th:last-child {
-            width: 190px;
-            min-width: 190px;
-            max-width: 190px;
         }
         .added-charge th:first-child, #chargeTable th:last-child {
             width: 0%;
@@ -65,12 +63,12 @@
         <table class="added-charge table table-striped table-hover table-dark">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th onclick="copyChargeCode()" class="selectable-text">#</th>
                     <th>Charge</th>
                     <th style="width: 0%;">Jailtime</th>
                     <th style="width: 0%;">Fine</th>
                     <th style="width: 0%;">Bail</th>
-                    <th>Action</th>
+                    <th colspan="2">Action</th>
                 </tr>
             </thead>
             <tbody id="selectedChargeTableBody">
@@ -81,14 +79,14 @@
                     <td translate="no" id="jailtime-total">0</td>
                     <td translate="no" id="fine-total">$0.00</td>
                     <td translate="no" id="bail-total">$0.00</td>
-                    <td><button onclick="resetCharge()" class="btn btn-warning">RESET</button></td>
+                    <td style="width: 0%;" id="location-tag"></td>
+                    <td style="width: 0%;"><button onclick="resetCharge()" class="btn btn-warning">RESET</button></td>
                 </tr>
                 <tr>
                     <td>Command: </td>
                     <td colspan="4" id="arrest-command" translate="no" onclick="copyArrestCMD()">/arrest 0 0 0 0</td>
-                    <td>
-                        <button onclick="copyArrestCMD()" class="btn btn-secondary">COPY</button>
-                    </td>
+                    <td><button onclick="copyArrestCMD()" class="btn btn-secondary">COPY</button></td>
+                    <td></td>
                 </tr>
             </tfoot>
         </table>
