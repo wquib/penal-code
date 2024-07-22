@@ -51,10 +51,11 @@
     <div class="container-lg py-5 px-3">
         <h1 class="text-center py-5">SAPD 2024 Penal Code Calculation</h1>
         <p>Creator: Islah / Lucas Rutherford</p>
-        <p>
-            <span class="text-info">TIP: </span>You can search with charge code, for example: 8A.<br>
-        </p>
-        <p></p>
+        <p class="m-0"><span class="text-info">TIP: </span>You can search with charge code or multiple code. Example :</p>
+        <table class="mb-4">
+            <tr><td>Charge code</td><td class="px-1">:</td><td>8A</td></tr>
+            <tr><td>Multiple code</td><td class="px-1">:</td><td>1P, 1C, 8A</td></tr>
+        </table>
         <div class="form-floating mb-3 input">
             <input type="text" class="form-control" id="playerName" placeholder="playerid/name" name="suspect-name">
             <label for="playerName">PlayerID or Name (CTRL + S)</label>
@@ -118,6 +119,12 @@
             </thead>
             <tbody id="chargeTableBody">
             </tbody>
+            <tfoot id="chargeTableFooter" hidden>
+                <tr>
+                    <td colspan="5"></td>
+                    <td><button onclick="addAllFoundedCharge()" class="btn btn-primary">ADD ALL</button></td>
+                </tr>
+            </tfoot>
         </table>
 
     </div>
