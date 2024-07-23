@@ -51,11 +51,7 @@
     <div class="container-lg py-5 px-3">
         <h1 class="text-center py-5">SAPD 2024 Penal Code Calculation</h1>
         <p>Creator: Islah / Lucas Rutherford</p>
-        <p class="m-0"><span class="text-info">TIP: </span>You can search with charge code or multiple code. Example :</p>
-        <table class="mb-4">
-            <tr><td>Charge code</td><td class="px-1">:</td><td>8A</td></tr>
-            <tr><td>Multiple code</td><td class="px-1">:</td><td>1P, 1C, 8A</td></tr>
-        </table>
+        <p><span class="text-info">TIP: </span>You can input 1P, 1C, 8A in search box for multiple searching.</p>
         <div class="form-floating mb-3 input">
             <input type="text" class="form-control" id="playerName" placeholder="playerid/name" name="suspect-name">
             <label for="playerName">PlayerID or Name (CTRL + S)</label>
@@ -64,12 +60,12 @@
         <table class="added-charge table table-striped table-hover table-dark">
             <thead>
                 <tr>
-                    <th onclick="copyChargeCode()" class="selectable-text">#</th>
+                    <th onclick="copyChargeCode()" class="selectable-text" id="copiedElement" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to copy">#</th>
                     <th>Charge</th>
                     <th style="width: 0%;">Jailtime</th>
                     <th style="width: 0%;">Fine</th>
                     <th style="width: 0%;">Bail</th>
-                    <th colspan="2">Action</th>
+                    <th colspan="2" class="text-center">Action</th>
                 </tr>
             </thead>
             <tbody id="selectedChargeTableBody">
@@ -114,7 +110,7 @@
                     <th style="width: 0%;">Jailtime</th>
                     <th style="width: 0%;">Fine</th>
                     <th style="width: 0%;">Bail</th>
-                    <th>Action</th>
+                    <th class="text-center">Action</th>
                 </tr>
             </thead>
             <tbody id="chargeTableBody">
