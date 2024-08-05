@@ -7,48 +7,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
     <title>SAPD 2024 Penal Code Tools</title>
 </head>
 <body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <style>
-        @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
-        body {
-            background-color: rgb(40, 40, 40);
-            min-width: 700px;
-        }
-        .selectable-text {
-            cursor: copy;
-            user-select: all;
-        }
-        .selectable-text:hover {
-            text-decoration: underline;
-        }
-        #arrest-command {
-            cursor: copy;
-            user-select: all;
-        }
-        .added-charge th:first-child, #chargeTable th:last-child {
-            width: 0%;
-        }
-        #chargeTable th:first-child {
-            width: 60px;
-            min-width: 60px;
-            max-width: 60px;
-        }
-        .input {
-            min-width: 324px;
-            max-width: 324px;
-        }
-        .charge-td {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 140px;
-        }
-    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-    <div class="container-lg py-5 px-3">
+    <div class="container-lg py-5 px-3 mb-3">
         <h1 class="text-center py-5">SAPD 2024 Penal Code Calculation</h1>
         <p>Creator: Islah / Lucas Rutherford</p>
         <p><span class="text-info">TIP: </span>You can input 1P, 1C, 8A, ... in search box for multiple searching.</p>
@@ -57,11 +23,11 @@
             <label for="playerName">PlayerID or Name (CTRL + S)</label>
         </div>
     
-        <table class="added-charge table table-striped table-hover table-dark">
+        <table class="added-charge table table-striped table-hover">
             <thead>
                 <tr>
                     <th onclick="copyChargeCode()" class="selectable-text" id="copiedElement" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to copy">#</th>
-                    <th>Charge</th>
+                    <th>Charge <span id="charge-total" class="fw-normal"></span></th>
                     <th style="width: 0%;">Jailtime</th>
                     <th style="width: 0%;">Fine</th>
                     <th style="width: 0%;">Bail</th>
@@ -76,11 +42,11 @@
                     <td translate="no" id="jailtime-total">0</td>
                     <td translate="no" id="fine-total">$0.00</td>
                     <td translate="no" id="bail-total">$0.00</td>
-                    <td style="width: 0%;" id="location-tag"></td>
-                    <td style="width: 0%;"><button onclick="resetCharge()" class="btn btn-warning">RESET</button></td>
+                    <td style="width: 0%;" id="location-tag" class="align-midle"></td>
+                    <td style="width: 0%;"><button onclick="resetCharge()" class="btn btn-warning w-100">RESET</button></td>
                 </tr>
                 <tr>
-                    <td>Command: </td>
+                    <td>Command:</td>
                     <td colspan="4" id="arrest-command" translate="no" onclick="copyArrestCMD()">/arrest 0 0 0 0</td>
                     <td><button onclick="copyArrestCMD()" class="btn btn-secondary">COPY</button></td>
                     <td></td>
@@ -96,13 +62,13 @@
                 <!-- <input type="radio" class="btn-check" name="btnradio" id="cat-0" autocomplete="off">
                 <label class="btn btn-dark" for="cat-0">SC: 1</label> -->
             </div>
-            <div class="form-floating mb-3 input">
+            <div class="form-floating input">
                 <input type="text" class="form-control" id="searchInput" placeholder="General Traffic Violation" name="charge-search">
                 <label for="search">Search a charge name or code (CTRL + K)</label>
             </div>
         </div>
 
-        <table class="table table-striped table-hover table-dark" id="chargeTable">
+        <table class="table table-striped table-hover" id="chargeTable">
             <thead>
                 <tr>
                     <th>#</th>
@@ -117,15 +83,17 @@
             </tbody>
             <tfoot id="chargeTableFooter" hidden>
                 <tr>
-                    <td colspan="5"></td>
-                    <td><button onclick="addAllFoundedCharge()" class="btn btn-primary">ADD ALL</button></td>
+                    <td colspan="4"></td>
+                    <td colspan="2"><button onclick="addAllFoundedCharge()" class="btn btn-primary w-100">ADD ALL</button></td>
                 </tr>
             </tfoot>
         </table>
 
     </div>
-
-    <script src="script.min.js"></script>
+    
+    <button id="back-to-top" class="btn btn-secondary btn-lg"><i class="bi bi-arrow-bar-up"></i></button>
+    
+    <script src="script.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
