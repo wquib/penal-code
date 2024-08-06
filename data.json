@@ -29,28 +29,28 @@
   },
   {
     "code": "1E",
-    "charge": "(1) E. Driving any truck without official trucking licenses (truck)",
+    "charge": "(1) E. Driving any truck without official trucking licenses",
     "jailtime": 30,
     "fine": 1500,
     "bail": 9000
   },
   {
     "code": "1E",
-    "charge": "(1) E. Driving any truck without official trucking licenses (lorry)",
+    "charge": "(1) E. Driving any lorry without official trucking licenses",
     "jailtime": 30,
     "fine": 500,
     "bail": 3000
   },
   {
     "code": "1F",
-    "charge": "(1) F. Truck driving in any federal roads, in any inappropriate path, and without any permission from officers before (truck)",
+    "charge": "(1) F. Lorry driving in any inappropriate path, without any permission from officers before",
     "jailtime": 30,
     "fine": 2000,
     "bail": 10000
   },
   {
     "code": "1F",
-    "charge": "(1) F. Truck driving in any federal roads, in any inappropriate path, and without any permission from officers before (lorry)",
+    "charge": "(1) F. Lorry driving in any inappropriate path, without any permission from officers before",
     "jailtime": 30,
     "fine": 200,
     "bail": 1200
