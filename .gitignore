@@ -1,2 +1,5 @@
 # Ignoring script.js
 script.js
+
+# Ignoring rData.json
+rData.json
