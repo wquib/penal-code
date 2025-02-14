@@ -10,10 +10,6 @@ body {
 .selectable-text:hover {
     text-decoration: underline;
 }
-#arrest-command {
-    cursor: copy;
-    user-select: all;
-}
 .added-charge th:first-child, #chargeTable th:last-child {
     width: 0%;
 }
